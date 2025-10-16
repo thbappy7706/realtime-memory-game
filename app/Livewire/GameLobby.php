@@ -62,7 +62,7 @@ class GameLobby extends Component
     }
 
     #[On('echo:games,GameUpdated')]
-    public function gameUpdated(): void
+    public function gameUpdated()
     {
         $this->loadGames();
     }

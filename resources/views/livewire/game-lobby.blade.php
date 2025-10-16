@@ -14,7 +14,10 @@
         @endif
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mx-auto p-6">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mx-auto p-6 items-start">
+
+{{--        Create Game Form--}}
         <div class="card">
             <header>
                 <h2>Create Games</h2>
@@ -58,6 +61,7 @@
 
         </div>
 
+{{--        Join Game List--}}
         <div class="card">
             <header>
                 <h2>Available Games</h2>
@@ -69,15 +73,67 @@
                 @endif
             </header>
             <section>
-                <ul class="menu menu-compact">
-                    @foreach($games as $game)
-                        <li>
-                            <a href="#" wire:click.prevent="joinGame({{ $game->id }})">
-                                {{ $game->name }} ({{ $game->players_count }} players)
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
+
+                @foreach($games as $key => $game)
+                    <div class="card mt-3" wire:key="game-{{ $game->id }}">
+                        <header>
+                            <div class="flex justify-between">
+                                <h2>Game Name: {{ $game->name }}</h2>
+                                <span class="text-sm">
+                    {{ $game->players()->count() }}/{{ $game->max_players }} players
+                </span>
+                            </div>
+                            @foreach ($game->players as $player)
+                                <p>{{ $player->user->name }}</p>
+                            @endforeach
+                        </header>
+
+                        <footer class="flex items-center">
+                            <button
+                                @if ($game->players()->count() == $game->max_players) disabled @endif
+                            wire:click="joinGame({{ $game->id }})"
+                                class="btn w-fit"
+                                wire:loading.attr="disabled"
+                                wire:target="joinGame({{ $game->id }})"
+                            >
+                <span class="inline-flex items-center">
+                    <!-- Spinner -->
+                    <svg
+                        wire:loading
+                        wire:target="joinGame({{ $game->id }})"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20" height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="animate-spin mr-2 text-current"
+                    >
+                        <path d="M12 2v4"/>
+                        <path d="m16.2 7.8 2.9-2.9"/>
+                        <path d="M18 12h4"/>
+                        <path d="m16.2 16.2 2.9 2.9"/>
+                        <path d="M12 18v4"/>
+                        <path d="m4.9 19.1 2.9-2.9"/>
+                        <path d="M2 12h4"/>
+                        <path d="m4.9 4.9 2.9 2.9"/>
+                    </svg>
+
+                    <span wire:loading.remove wire:target="joinGame({{ $game->id }})">
+                        Join To The Game
+                    </span>
+                    <span wire:loading wire:target="joinGame({{ $game->id }})">
+                        Joining...
+                    </span>
+                </span>
+                            </button>
+                        </footer>
+                    </div>
+                @endforeach
+
+
             </section>
 
 
