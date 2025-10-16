@@ -2,9 +2,11 @@
 
 namespace App\Livewire;
 
+use App\Events\GameUpdated;
 use App\Models\Game;
 use App\Models\GamePlayer;
 use JetBrains\PhpStorm\NoReturn;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -56,6 +58,13 @@ class GameLobby extends Component
 
         $this->gameName = '';
 
+        GameUpdated::dispatch($game->id,'player_joined');
+    }
+
+    #[On('echo:games,GameUpdated')]
+    public function gameUpdated(): void
+    {
+        $this->loadGames();
     }
 
 
