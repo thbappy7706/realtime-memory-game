@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "/home/tanvir/.config/herd-lite/bin/php",
+            "args": [
+                "/home/tanvir/Projects/realtime-memory-game/artisan",
+                "boost:mcp"
+            ]
+        }
+    }
+}

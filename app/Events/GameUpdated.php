@@ -4,9 +4,6 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -20,7 +17,8 @@ class GameUpdated implements ShouldBroadcastNow
      */
     public function __construct(public int $gameId, public string $type, public array $data = [])
     {
-        $this->data['played_id'] = auth()->id();
+        // Ensure the broadcasting payload always includes the acting player's ID
+        $this->data['player_id'] = $this->data['player_id'] ?? auth()->id();
     }
 
     /**
@@ -41,7 +39,7 @@ class GameUpdated implements ShouldBroadcastNow
         return [
             'game_id' => $this->gameId,
             'type' => $this->type,
-            'data' => array_merge($this->data, ['played_id' => $this->data['played_id'] ?? auth()->id()]),
+            'data' => array_merge($this->data, ['player_id' => $this->data['player_id'] ?? auth()->id()]),
         ];
     }
 }

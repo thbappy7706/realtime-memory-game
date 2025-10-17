@@ -5,7 +5,6 @@ namespace App\Livewire;
 use App\Events\GameUpdated;
 use App\Models\Game;
 use App\Models\GamePlayer;
-use JetBrains\PhpStorm\NoReturn;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -28,7 +27,6 @@ class GameLobby extends Component
     {
         $this->games = Game::with(['players.user'])->where('status', 'new')->latest()->get();
     }
-
 
     public function createGame()
     {
@@ -58,7 +56,7 @@ class GameLobby extends Component
 
         $this->gameName = '';
 
-        GameUpdated::dispatch($game->id,'player_joined');
+        GameUpdated::dispatch($game->id, 'player_joined');
     }
 
     #[On('echo:games,GameUpdated')]
@@ -67,10 +65,35 @@ class GameLobby extends Component
         $this->loadGames();
     }
 
-
-    public function joinGame()
+    public function joinGame($id)
     {
-        dd('this join the game');
+        $game = Game::findOrFail($id);
+        if (! $game or $game->status !== 'new') {
+            session()->flash('error', 'Game not available');
+
+            return;
+        }
+        if ($game->players->count() == $game->max_players) {
+            session()->flash('error', 'Game is full');
+
+            return;
+        }
+        if ($game->players()->where('user_id', auth()->id())->exists()) {
+            return redirect()->route('game.show', $game);
+        }
+        $turnOrder = $game->players->max('turn_order') + 1;
+
+        GamePlayer::create([
+            'game_id' => $game->id,
+            'user_id' => auth()->id(),
+            'score' => 0,
+            'turn_order' => $turnOrder,
+            'is_active' => true,
+        ]);
+
+        GameUpdated::dispatch($game->id, 'player_joined');
+
+        return redirect()->route('game.show', $game);
 
     }
 
